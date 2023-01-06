@@ -1,5 +1,7 @@
 package main
 
+import "os"
+
 // import (
 // 	"github.com/AlghazHernanda/ecommerce-go/controllers"
 // 	"github.com/AlghazHernanda/ecommerce-go/database"
@@ -9,5 +11,10 @@ package main
 // )
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8000"
+	}
 
+	app := controllers.NewApplication(database.ProductsData(database.Client, "Products"), database.UserData(database.Client, "Users"))
 }
