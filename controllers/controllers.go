@@ -7,10 +7,19 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/AlghazHernanda/ecommerce-go/models"
+	"github.com/AcevedoEsteban/goEcommerce-yt/models"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/bson"
 	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/mgo.v2/bson"
 )
+
+var UserCollecton *mongo.Collection = database.UserData(database.Client, "Users")
+var ProductCollecton *mongodb.Collection = database.ProductData(database.Client, "Products")
+var Validate = validator.New()
 
 func HashPassword(password string) string {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
@@ -105,6 +114,7 @@ func Login() gin.HandlerFunc {
 		err := UserCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&founduser)
 		defer cancel()
 
+		//jika error tidak sama dengan 0,
 		if err != nil {
 			c.JSON(https.StatusInternalServerError, gin.H{"error": "login or passwor incorrect"})
 			return
@@ -115,6 +125,7 @@ func Login() gin.HandlerFunc {
 		//or method call arguments evaluate instantly, but they don't execute until the nearby functions returns
 		defer cancel()
 
+		//jika password tidak valid
 		if !PasswordIsVaild {
 			c.JSON{http.StatusInternalServerError, gin.H{"error": msg}}
 			fmt.Println(msg)
