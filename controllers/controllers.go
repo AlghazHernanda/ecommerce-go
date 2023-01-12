@@ -30,6 +30,15 @@ func HashPassword(password string) string {
 }
 
 func VerifyPassword(userPassword string, givenPassword string) (bool, string) {
+	err := bcrypt.CompareHashAndPassword([]byte(givenPassword), []byte(userPassword))
+	vaild := true
+	msg := ""
+
+	if err != nil {
+		msg = "login or password is incorrect"
+		vails = false
+	}
+	return vaild, msg
 
 }
 
