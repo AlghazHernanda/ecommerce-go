@@ -153,3 +153,83 @@ func Login() gin.HandlerFunc {
 func ProductViewerAdmin() gin.HandlerFunc {
 
 }
+
+func SearchProduct() gin.HandleFunc {
+	return func ( c *ginContext ) {
+		//for golang to understand what in the databse from mongoDB
+		var productlist []models.Product
+		var ctx, cancel = context.WithTimeout(context.Background(),  100*time.Second)
+		defer cancel()
+		
+		//passing an empty queary in mongoDB {{}} is finding EVERYTHING
+		//cusor gets the data in JSON formatt
+		cursor, err := ProductCollection.Find(ctx, bson.D{{}})
+		if err != nil{
+			c.IndentedJSON(http.StatusInternalServerError, "something went wrong please try again after some time")
+			return
+
+		}
+		//cursor converts all the data into productlost declare in the top of this function
+		err = curcor.All(ctx, &productlist)
+
+		if err!= nil {
+			log.Println(err)s
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
+		defer curcor.Close()
+
+		if err := cursor.err(); err != nil {
+			log.Println(err)
+			c.IndentedJSON(400, "invalid")
+			return
+		}
+		defer cancel()
+		c.IndentedJSON(200, productlist)
+	}
+}
+
+func SearchProductByQuery() gin.HandlerFunc {
+	return func(c *gin.Context){
+		//define a slice []_
+		var searchProducs []models.Product
+		queryParm := c.Query("name")
+
+		//you want to check if it"s empty
+		if queryParam == ""{
+
+			log.Println("query is empty")
+			c.Header("Content.Type", "application/json")
+			c.JSON(HTTP.StatusNotFound, ginH{"Error" : "invalid search index"})
+			c.Abort()
+			return
+		}
+
+		var ctx, cancel = context.WithTimeOut(context.Background(), 100*time.Second)
+		defer cancel()
+
+		searchquerydb, err := ProductCollection.Find(ctx, bson.M{"product_name": bson.M{"$regex":queryParam}})
+
+		if err != nil {
+			c.IndentedJSON(404, "sometbing went wrong while fetching the data")
+		}
+
+		err = searchquerydb.All(ctx, &searchproducts)
+		if err != nil{
+			log.Println(err)
+			c.IndentedJSON(400, "invaild")
+			return
+		}
+		defer searchquerydb.Close(ctx)
+
+		if err := searchquerydb.Err(); err !=nil{
+			log.Println(err)
+			c.IndentedJSON(400, "invalid request")
+			return
+		}
+		defer cancel()
+		c.IndentedJSON(200,searchproducts)
+
+	}
+
+}
