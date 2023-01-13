@@ -103,7 +103,16 @@ func (app *Application) RemoveItem() gin.HandlerFunc {
 }
 
 func GetItemFromCart() gin.HandlerFunc {
+	return func(c *gin.Context){
+		user_id := c.Query("id")
 
+		if user_id == "" {
+			c.Header("Content-Type", "application/json")
+			c.JSON(http.StatusNotFound, gin.H{"error":"invalid id"})
+			c.Abort()
+			return
+		
+		}	
 }
 
 func (app *Application) BuyFromCart() gin.HandlerFunc {
