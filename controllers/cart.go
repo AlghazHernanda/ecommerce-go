@@ -113,6 +113,28 @@ func GetItemFromCart() gin.HandlerFunc {
 			return
 		
 		}	
+
+		usert_id, _:= primitive.ObjectIDFormatHex(user_id)
+
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		var filledcart models.user
+		err := UserCollection.FindOne(ctx, bson.D{primitive.E{Key:"_id", Value:usert_id}}).Decode(&filledcart)
+	
+		if err != nil {
+			log.Println(err)
+			c.IndentedJSON(500, "not found")
+			return
+		}
+		
+		filter_match := bson.D{{Key:$"match", Value:bson.D{primitive.E{Key:"_id",Value:usert_id}}}}
+		unwind := bson.D{{Key:"$unwind", Value: bson.D{primitive.E{Key:"path", Value:"$usercart"}}}}
+		grouping := bson.D{{Key:"$group", Value:bson.D{primitive.E{Key:"_id", Value:"$_id"}, {Key: "total",Value:bson.D{primitive.E{Key:"$sum", Value:"$usercart.price"}}}}}}
+		pointcursor, err := UserCollection.aggregate(ctx, mongo.Pipeline{filter_match,unwind,grouping})
+		
+		
+		}	
 }
 
 func (app *Application) BuyFromCart() gin.HandlerFunc {
