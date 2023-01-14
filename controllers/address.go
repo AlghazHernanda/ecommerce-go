@@ -1,10 +1,13 @@
 package controllers
 
 import (
+	"context"
 	"net/http"
+	"time"
 
-	"github.com/AcevedoEsteban/goEcommerce-yt/models"
 	"github.com/gin-gonic/gin"
+	"github.com/shashank/ecommerce-yt/models"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -39,6 +42,22 @@ func DeleteAddress() gin.HandlerFunc {
 			c.IndentedJSON(500, "InternaL Server Error")
 		}
 
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+
+		defer cancel()
+
+		filter := bson.D{primitive.E{Key: "_id", Value: usert_id}}
+		update := bson.D{Key: "$set", Value: bson.D{primitive.E{Key: "address", Value: addresses}}}
+		UserCollection.UpdateOne(ctx, filter, update)
+		_, err = UserCollection.UpdateOne(ctx, filter, update)
+		if err != nil {
+			c.IndentedJSON(404, "wrong commande")
+			return
+
+		}
+		defer cancel()
+		ctx.Done()
+		c.IndentedJSON(200, "successfully deleted")
 	}
 
 }
