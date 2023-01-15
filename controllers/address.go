@@ -12,6 +12,8 @@ import (
 )
 
 func AddAddresss() gin.HandlerFunc {
+	return func(c *gin.Context) {
+	}
 
 }
 
