@@ -74,3 +74,15 @@ func ValidateToken(signedToken string)(claims *SignedDetails, msg string){
 		}
 		return claims, msg
  }
+
+ func UpodateAllTokens(signedtoken string, signedfreshtoken string, userid string ){
+	var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+ 
+	var updateobj primitive.D
+
+	updateobj = append (updateobj,bson.E{key:"token",Value: signedtoken})
+	updateobj = append (updateobj,bson.E{key:"refresh_token",Value: signedrefreshsignedtoken})
+	updated_at, _:= time.Parse{time.RFC3339, time.Now().Format(time.RFC3339)}
+	updateobj = append (updateobj,bson.E{key:"updateat",Value: updated_at})
+
+}
