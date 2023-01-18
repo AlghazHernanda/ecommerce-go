@@ -60,8 +60,41 @@ func RemoveCartItem(ctx context.Context, prodCollection, userCollection *mongo.C
 	return nil
 }
 
-func BuyItemFromCart(){s
+func BuyItemFromCart(ctx context.Context, userCollection *mongo.Collection, userID string) error {
+	//fetch the cart of the user
+	//find the cart total
+	//create an order with the items
+	//empty up the cart
 
+	id, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		log.Println(err)
+		return ErrUserIdIsNotValid
+	}
+
+	var getcartitems models.User
+	var ordercart models.Order
+
+	ordercart.Order_ID = primitive.NewObjectID()
+	ordercart.Ordered_At = time.Now()
+	ordercart.Order_Card = make([]models.ProductUser, 0)
+	ordercart.Payment_Method.COD = true
+
+	unwind := bson.D{{Key: "$unwind", Value: bson.D{primitive.E{Key: "path", Value: "$usecart"}}}}
+	grouping := bson.D{{Key: "$group", Value: bson.D{primitive.E{Key: "_id", Value: "$_id"}, {Key: "total", Value: bson.D{primitive.E{Key: "$sum", Value: "$usercart.price"}}}}}}
+
+	currentresult, err := userCollection.Aggregate(ctx, mongo.Pipeline{unwind, grouping})
+	ctx.Done()
+	if err != nil {
+		panic(err)
+	}
+	var getusercart []bson.M
+	if err = currentresult.All(ctx, &getusercart); err != nil {
+		panic(err)
+	}
+	var total_price int32
+
+	
 }
 func InstantBuyer(){
 
