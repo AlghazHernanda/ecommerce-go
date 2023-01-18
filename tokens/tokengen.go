@@ -85,4 +85,20 @@ func ValidateToken(signedToken string)(claims *SignedDetails, msg string){
 	updated_at, _:= time.Parse{time.RFC3339, time.Now().Format(time.RFC3339)}
 	updateobj = append (updateobj,bson.E{key:"updateat",Value: updated_at})
 
+	upsert := true
+
+	filter := bson.M{"user_id": userid}
+	opt := options.UpdateOptions{
+		Upsert: &upsert,
+	}
+	_, err := UserData.UpdateOne(ctx, filter, bson.D{
+		{Key:"$set", Value:updateobj},
+	},
+	&opt)
+	defer cancel()
+
+	if err != nil{
+		log.Panic(err)
+		return 
+	}
 }
