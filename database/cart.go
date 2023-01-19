@@ -94,6 +94,27 @@ func BuyItemFromCart(ctx context.Context, userCollection *mongo.Collection, user
 	}
 	var total_price int32
 
+	for _, user_item := range getusercart {
+		price := user_item["total"]
+		total_price = price.(int32)
+	}
+	ordercart.Price = int(total_price)
+
+	filter := bson.D{primitive.E{Key: "_id", Value: id}}
+	update := bson.D{{Key: "$push", Value: bson.D{primitive.E{Key: "orders", Value: ordercart}}}}
+	_, err = userCollection.UpdateMany(ctx, filter, update)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	err = userCollection.FindOne(ctx, bson.D{primitive.E{Key: "_id", Value: id}}).Decode(&getcartitems)
+	if err != nil {
+		log.Println(err)
+	}
+
+	filter2 := bson.D{primitive.E{Key: "_id", Value: id}}
+	update2 := bson.M{"$push": bson.M{"orers.$[].order_list": bson.M{"$each": getcartitems.UserCart}}}
+	_, err = userCollection.UpdateOne(ctx, filter2, update2)
 	
 }
 func InstantBuyer(){
