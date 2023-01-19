@@ -115,7 +115,18 @@ func BuyItemFromCart(ctx context.Context, userCollection *mongo.Collection, user
 	filter2 := bson.D{primitive.E{Key: "_id", Value: id}}
 	update2 := bson.M{"$push": bson.M{"orers.$[].order_list": bson.M{"$each": getcartitems.UserCart}}}
 	_, err = userCollection.UpdateOne(ctx, filter2, update2)
-	
+	if err != nil {
+		log.Println(err)
+	}
+	usercart_empty := make([]models.ProductUser, 0)
+	filtered := bson.D{primitive.E{Key: "_id", Value: id}}
+	updated := bson.D{{Key: "$set", Value: bson.D{primitive.E{Key: "usercart", Value: usercart_empty}}}}
+	_, err = userCollection.UpdateOne(ctx, filtered, updated)
+	if err != nil {
+		return ErrCantBuyCartItem
+	}
+
+	return nil
 }
 func InstantBuyer(){
 
