@@ -4,11 +4,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/AlghazHernanda/ecommerce-go/controllers"
-	"github.com/AlghazHernanda/ecommerce-go/database"
-	"github.com/AlghazHernanda/ecommerce-go/middleware"
-	"github.com/AlghazHernanda/ecommerce-go/routes"
 	"github.com/gin-gonic/gin"
+	"github.com/shashank/ecommerce-yt/controllers"
+	"github.com/shashank/ecommerce-yt/database"
+	"github.com/shashank/ecommerce-yt/middleware"
+	"github.com/shashank/ecommerce-yt/routes"
 )
 
 func main() {
