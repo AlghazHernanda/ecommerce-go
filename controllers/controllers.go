@@ -7,14 +7,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/AcevedoEsteban/goEcommerce-yt/models"
+	generate "github.com/shashank/ecommerce-yt/tokens"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/shashank/ecommerce-yt/database"
+	"github.com/shashank/ecommerce-yt/models"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/bson"
 	"golang.org/x/crypto/bcrypt"
-	"gopkg.in/mgo.v2/bson"
 )
 
 var UserCollecton *mongo.Collection = database.UserData(database.Client, "Users")
