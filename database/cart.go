@@ -1,7 +1,16 @@
 package database
 
 import(
-fmt
+	"context"
+	"errors"
+	"log"
+	"time"
+
+	"github.com/go-playground/validator/v10/translations/id"
+	"github.com/shashank/ecommerce-yt/models"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 var (
@@ -130,6 +139,35 @@ func BuyItemFromCart(ctx context.Context, userCollection *mongo.Collection, user
 }
 func InstantBuyer(){
 	func InstantBuyer(ctx context.Context, prodCollection, userCollection *mongo.Collection, productID primitive.ObjectID, UserID string) error {
-		
+		id , err := primitive.ObjectIDFromHex(UserID)
+		if err != nil {
+			log.Println(err)
+			return ErrUserIdIsNotValid
+		}
+		var product_details models.ProductUser
+		var order_details models.Order
+		order_details.Order_ID = primitive.NewObjectID()
+		order_details.Ordered_At = time.Now()
+		order_details.Order_Card = make([]models.ProductUser, 0)
+		order_details.Payment_Method.COD = true
+		err = prodCollection.FindOne(ctx, bson.D{primitive.E{Key: "_id", Value: productID}}).Decode(&product_details)
+		if err != nil {
+			log.Println(err)
+		}
+		order_details.Price = int(product_details.Price)
+		filter := bson.D{primitive.E{Key: "_id", Value: id}}
+		update := bson.D{{Key: "$push", Value: bson.D{primitive.E{Key: "orders", Value: order_details}}}}
+		_, err = userCollection.UpdateOne(ctx, filter , update)
+		if err!= nil {
+			log.Println(err)
+		}
+		filter2 := bson.D{primitive.E{Key: "_id", Value: id}}
+		update2 := bson.M{"$push": bson.M{"orers.$[].order_list": product_details}}
+		_, err = userCollection.UpdateOne(ctx, filter2 , update2)
+		if err!= nil {
+			log.Println(err)
+		}
+		return nil 
+	}
 
 }
